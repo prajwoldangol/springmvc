@@ -1,0 +1,22 @@
+
+<div class="hero-nav">
+	<ul class="nav">
+	
+		<c:choose>
+					<c:when test="${sessionScope.name ne null }">
+						<li class="nav-item welcome"> Welcome Back , ${sessionScope.name }</li>
+					</c:when>
+					<c:otherwise>
+						<li class="nav-item"><a class="nav-link" href="login">Login</a></li>
+					</c:otherwise>
+				</c:choose>
+		
+		
+
+		<c:if test="${sessionScope.name ne null }">
+			<li class="nav-item"><a class="nav-link" href="logout"> Logout</a></li>
+
+		</c:if>
+
+	</ul>
+</div>

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+     xmlns:aop="http://www.springframework.org/schema/aop"
+    xmlns:mvc="http://www.springframework.org/schema/mvc"
+    xmlns:tx="http://www.springframework.org/schema/tx" xmlns:context="http://www.springframework.org/schema/context"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd 
+    http://www.springframework.org/schema/aop 
+    http://www.springframework.org/schema/aop/spring-aop.xsd 
+        http://www.springframework.org/schema/mvc 
+        http://www.springframework.org/schema/mvc/spring-mvc.xsd
+    http://www.springframework.org/schema/context
+    http://www.springframework.org/schema/context/spring-context.xsd
+    http://www.springframework.org/schema/tx
+    http://www.springframework.org/schema/tx/spring-tx.xsd">
+	
+	<!-- Enabling all the spring mvc features -->
+	<mvc:annotation-driven />
+	
+	
+	<context:component-scan base-package="com.course.controller"></context:component-scan> <!-- here we are declaring where all the controllers are present -->
+	<context:component-scan base-package="com.course.service"></context:component-scan>
+	<context:component-scan base-package="com.course.repository"></context:component-scan>
+
+	<mvc:resources mapping="/img/**" location="/img/" />
+	<mvc:resources mapping="/css/**" location="/css/" />
+	
+	<bean id="viewResolver" class="org.springframework.web.servlet.view.UrlBasedViewResolver">  <!--prefix+ index +suffix--> <!-- /WEB-INF/pages/hello.jsp  -->
+    	<property name="viewClass" value="org.springframework.web.servlet.view.JstlView"></property>
+    	<property name="prefix" value="/WEB-INF/pages/"></property>
+    	<property name="suffix" value=".jsp"></property>
+    </bean>
+    <!-- /WEB-INF/pages/test.jsp -->
+	
+	<bean id="pkdataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName" value="com.mysql.jdbc.Driver"></property> <!-- ctrl+shift+T -->
+		<property name="url" value="jdbc:mysql://localhost:3306/javaclass"></property>
+		<property name="username" value="root"></property>
+		<property name="password" value="root"></property>
+	</bean>
+	<bean id="psessionFactory" class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
+		<property name="dataSource" ref="pkdataSource"/>
+		<property name="packagesToScan" value="com.course.entity" />
+		<property name="hibernateProperties">
+			<props>
+				<!-- database specific queries -->
+				<prop key="hibernate.dialect">org.hibernate.dialect.MySQL5InnoDBDialect</prop>
+				<!-- update existing schema -->
+				<prop key="hibernate.hbm2ddl.auto" >update</prop>
+				<!-- print my queries -->
+				<prop key="hibernate.show_sql">true</prop>
+			</props>
+		</property>
+	</bean>
+	<bean id="transactionManager" class="org.springframework.orm.hibernate5.HibernateTransactionManager">
+		<property name="sessionFactory" ref="psessionFactory"/>
+	</bean>
+	<tx:annotation-driven transaction-manager="transactionManager"/>
+	<mvc:interceptors>
+		<mvc:interceptor>
+			<mvc:mapping path= "/profile" />
+			<bean class="com.course.interceptor.CacheManager"></bean>
+		</mvc:interceptor>
+	</mvc:interceptors>
+	<!--   <mvc:interceptors>
+    <mvc:interceptor>
+        <mvc:mapping path="/**/*"/>
+        <bean id="webContentInterceptor" class="org.springframework.web.servlet.mvc.WebContentInterceptor">
+            <property name="cacheSeconds" value="0"/>
+            <property name="useExpiresHeader" value="true"/>
+            <property name="useCacheControlHeader" value="true"/>
+            <property name="useCacheControlNoStore" value="true"/>
+        </bean>
+    </mvc:interceptor>
+</mvc:interceptors>-->
+</beans>
